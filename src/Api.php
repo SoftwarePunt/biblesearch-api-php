@@ -3,113 +3,57 @@
 namespace BiblesearchApi;
 
 /**
- * @version $Id$
- * @author  Brian Smith <wisecounselor@gmail.com>
- * @package ABS
+ * API Client for bibles.org.
  */
-
-class Api {
-    
+class Api
+{
     /**
-     * Should an exception be thrown when an API call fails?
-     *
-     * @var boolean
-     */
-    private $_throwOnFail = true;
-    
-    /**
-     * The default American Bible Society API endpoint URL for REST requests.
+     * API Token
      *
      * @var string
-     * @see setEndpointUrl()
      */
-    const REST_ENDPOINT_URL = 'http://bibles.org/';
-    /*
-    * An American Bible Society API key.
-    *
-    * To obtain one see ...
-    *
-    * @var string
-    * @see getKey()
-    */
-    private $_key = null;
-    
+    private $key;
+
     /**
-     * The American Bible Society REST endpoint URL.
+     * Server hostname
      *
-     * @var     string
-     * @see     getEndpointUrl(), setEndpointUrl()
-     * @uses    REST_ENDPOINT_URL Used as a default.
+     * @var string
      */
-    private $_endpointUrl = Api::REST_ENDPOINT_URL;
-    
+    private $server;
+
     /**
-     * Constructor.
+     * API client constructor.
      *
-     * @param   string $key ABS API key.
+     * @param string $key API Token
+     * @param string $server Server hostname (e.g. "bibles.org")
      */
-    public function __construct($key) {
-        // key (required)
-        if (isset($key)) {
-            $this->_key = (string) $key;
-        } else {
-            throw new Exception('Must provide a valid API key.');
-        }
-    }
-    
-    /**
-     * Get the API key.
-     *
-     * @return  string
-     * @see     __construct()
-     */
-    public function getKey() {
-        return $this->_key;
-    }
-    
-    /**
-     * Create a Request associated with this API object.
-     *
-     * @param   string $method Name of the ABS API method
-     * @param   array $params Associative array of parameter name/value pairs
-     * @return  object Request
-     * @uses    Request
-     */
-    public function createRequest($url, $params = array()) {
-        return new Request($this, $url, $params);
-    }
-    
-    /**
-     * Return the URL of the ABS endpoint.
-     *
-     * @return  string
-     * @see     setEndpointUrl()
-     */
-    public function getEndpointUrl() {
-        return $this->_endpointUrl;
-    }
-    
-    /**
-     * Return true if an exception will be thrown if the API returns a fail
-     * for the request.
-     *
-     * @return  boolean
-     * @see     setExceptionThrownOnFailure()
-     */
-    public function isExceptionThrownOnFailure()
+    public function __construct($key, $server = 'bibles.org')
     {
-        return $this->_throwOnFail;
+        $this->key = $key;
+        $this->server = $server;
     }
+
     /**
-     * Set an exception will be thrown if the API returns a fail for the
-     * request.
+     * Given a relative $endpoint URL, returns the full URL including authentication.
      *
-     * @param   boolean $throwOnFail
-     * @return  void
-     * @see     isExceptionThrownOnFailure()
+     * @param string $endpoint Relative API url (e.g. "/versions/eng-GNTD/books.js")
+     * @return string URL
      */
-    public function setExceptionThrownOnFailure($throwOnFail)
+    public function getUrl($endpoint = '/example.js')
     {
-        $this->_throwOnFail = (boolean) $throwOnFail;
+        return sprintf('https://%s:x@%s/%s', $this->key, $this->server, $endpoint);
+    }
+
+    /**
+     * Fetches data from a given endpoint and decodes it as JSON.
+     *
+     * @param string $endpoint Relative API url (e.g. "/versions/eng-GNTD/books.js")
+     * @return mixed Decoded data from server
+     */
+    public function fetchData($endpoint)
+    {
+        $url = $this->getUrl($endpoint);
+        $data = file_get_contents($url);
+        return json_decode($data);
     }
 }
