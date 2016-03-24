@@ -2,7 +2,7 @@
   "name": "biblesearch/api-php",
   "description": "Composer module for biblesearch-api-php",
   "minimum-stability": "stable",
-  "license": "ttp://bibles.org/pages/api/documentation/fums",
+  "license": "FUMS",
   "autoload": {
     "psr-4": {
       "BiblesearchApi\\": "src/"
